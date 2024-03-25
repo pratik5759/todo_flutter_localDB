@@ -33,15 +33,15 @@ class HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.only(top: 10.0, left: 10, right: 10),
 
             ///list tile with container for decor
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  //border: Border.all(color: Colors.black54),
-                  color: listTodo[index]["isCompleted"]
-                      ? Colors.green
-                      : Colors.grey.shade300,
-                  boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5)]),
-              child: InkWell(
+            child: InkWell(
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    //border: Border.all(color: Colors.black54),
+                    color: listTodo[index]["isCompleted"]
+                        ? Colors.green
+                        : Colors.grey.shade300,
+                    boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5)]),
                 child: ListTile(
                     leading: Checkbox(
                       value: listTodo[index]["isCompleted"],
@@ -58,95 +58,96 @@ class HomeScreenState extends State<HomeScreen> {
                           listTodo.removeAt(index);
                           setState(() {});
                         },
-                        child: Icon(Icons.delete,color: Colors.red,))),
-                onTap: (){
-                  showModalBottomSheet(context: context, builder: (context){
+                        child: CircleAvatar(backgroundColor: Colors.white,child: Icon(Icons.delete,color: Colors.red,)))),
+              ),
+              onTap: (){
+                taskController.text = listTodo[index]['task'];
+                descController.text = listTodo[index]['desc'];
+                showModalBottomSheet(context: context, builder: (context){
 
-                    taskController.text = listTodo[index]['task'];
-                    descController.text = listTodo[index]['desc'];
 
 
-                    return Container(
-                      child: Column(
-                        children: [
-                          /// bottomsheet title
-                          Center(
-                              child: Text(
-                                "Update Task",
-                                style: TextStyle(
-                                    fontSize: 25, fontWeight: FontWeight.bold),
-                              )),
-                          SizedBox(
-                            height: 10,
-                          ),
 
-                          ///add task texfeild
-                          Container(
-                            height: 50,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: TextField(
-                                  controller: taskController,
-                                  decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(15),
-                                          borderSide: BorderSide(
-                                              color: Colors.grey.shade400)),
-                                      hintText: "Task",
-                                      hintStyle: TextStyle(
-                                          color: Colors.grey, fontSize: 20))),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
+                  return Container(
+                    child: Column(
+                      children: [
+                        /// bottomsheet title
+                        Center(
+                            child: Text(
+                              "Update Task",
+                              style: TextStyle(
+                                  fontSize: 25, fontWeight: FontWeight.bold),
+                            )),
+                        SizedBox(
+                          height: 10,
+                        ),
 
-                          /// add task desc
-                          Padding(
+                        ///add task texfeild
+                        Container(
+                          height: 50,
+                          child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: TextField(
-                                controller: descController,
+                                controller: taskController,
                                 decoration: InputDecoration(
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(15),
                                         borderSide: BorderSide(
                                             color: Colors.grey.shade400)),
-                                    hintText: "Task Description",
+                                    hintText: "Task",
                                     hintStyle: TextStyle(
                                         color: Colors.grey, fontSize: 20))),
                           ),
-                          SizedBox(
-                            height: 10,
-                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
 
-                          /// add and cancle button
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              OutlinedButton(
-                                  onPressed: () {
+                        /// add task desc
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: TextField(
+                              controller: descController,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade400)),
+                                  hintText: "Task Description",
+                                  hintStyle: TextStyle(
+                                      color: Colors.grey, fontSize: 20))),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
 
-                                    listTodo[index]["task"] = taskController.text;
-                                    listTodo[index]["desc"] = descController.text;
+                        /// add and cancle button
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            OutlinedButton(
+                                onPressed: () {
 
-                                    setState(() {});
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text("Update")),
-                              OutlinedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text("Cancle")),
-                            ],
-                          ),
-                          SizedBox(height: 150,)
-                        ],
-                      ),
-                    );
-                  });
-                },
-              ),
+                                  listTodo[index]["task"] = taskController.text;
+                                  listTodo[index]["desc"] = descController.text;
+
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                },
+                                child: Text("Update")),
+                            OutlinedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text("Cancle")),
+                          ],
+                        ),
+                        SizedBox(height: 150,)
+                      ],
+                    ),
+                  );
+                });
+              },
             ),
           );
         },
