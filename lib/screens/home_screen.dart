@@ -20,7 +20,7 @@ class HomeScreenState extends State<HomeScreen> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Text(" TASKS ",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
+        title: const Text(" TASKS ",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
         backgroundColor: Colors.blue,
         centerTitle: true,
       ),
@@ -41,7 +41,7 @@ class HomeScreenState extends State<HomeScreen> {
                     color: listTodo[index]["isCompleted"]
                         ? Colors.green
                         : Colors.grey.shade300,
-                    boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5)]),
+                    boxShadow: [const BoxShadow(color: Colors.grey, blurRadius: 5)]),
                 child: ListTile(
                     leading: Checkbox(
                       value: listTodo[index]["isCompleted"],
@@ -51,34 +51,30 @@ class HomeScreenState extends State<HomeScreen> {
                         setState(() {});
                       }
                     ),
-                    title: Text(listTodo[index]["task"]),
-                    subtitle: Text(listTodo[index]["desc"]),
+                    title: Text(listTodo[index]["task"],style: TextStyle(fontWeight: FontWeight.bold),),
+                    subtitle: Text(listTodo[index]["desc"],style: TextStyle(fontWeight: FontWeight.w300),),
                     trailing: InkWell(
                         onTap: () {
                           listTodo.removeAt(index);
                           setState(() {});
                         },
-                        child: CircleAvatar(backgroundColor: Colors.white,child: Icon(Icons.delete,color: Colors.red,)))),
+                        child: CircleAvatar(backgroundColor: Colors.white,maxRadius: 25,child: Icon(Icons.delete,color: Colors.red,)))),
               ),
               onTap: (){
                 taskController.text = listTodo[index]['task'];
                 descController.text = listTodo[index]['desc'];
                 showModalBottomSheet(context: context, builder: (context){
-
-
-
-
                   return Container(
                     child: Column(
                       children: [
                         /// bottomsheet title
-                        Center(
+                        const Center(
                             child: Text(
                               "Update Task",
                               style: TextStyle(
                                   fontSize: 25, fontWeight: FontWeight.bold),
                             )),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
 
@@ -95,11 +91,11 @@ class HomeScreenState extends State<HomeScreen> {
                                         borderSide: BorderSide(
                                             color: Colors.grey.shade400)),
                                     hintText: "Task",
-                                    hintStyle: TextStyle(
+                                    hintStyle: const TextStyle(
                                         color: Colors.grey, fontSize: 20))),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
 
@@ -114,10 +110,10 @@ class HomeScreenState extends State<HomeScreen> {
                                       borderSide: BorderSide(
                                           color: Colors.grey.shade400)),
                                   hintText: "Task Description",
-                                  hintStyle: TextStyle(
+                                  hintStyle: const TextStyle(
                                       color: Colors.grey, fontSize: 20))),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
 
@@ -127,22 +123,21 @@ class HomeScreenState extends State<HomeScreen> {
                           children: [
                             OutlinedButton(
                                 onPressed: () {
-
-                                  listTodo[index]["task"] = taskController.text;
-                                  listTodo[index]["desc"] = descController.text;
-
-                                  setState(() {});
+                                  setState(() {
+                                    listTodo[index]["task"] = taskController.text;
+                                    listTodo[index]["desc"] = descController.text;
+                                  });
                                   Navigator.pop(context);
                                 },
-                                child: Text("Update")),
+                                child: const Text("Update")),
                             OutlinedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                child: Text("Cancle")),
+                                child: const Text("Cancle")),
                           ],
                         ),
-                        SizedBox(height: 150,)
+                        const SizedBox(height: 150,)
                       ],
                     ),
                   );
@@ -166,13 +161,13 @@ class HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       /// bottomsheet title
-                      Center(
+                      const Center(
                           child: Text(
                         "Add Task",
                         style: TextStyle(
                             fontSize: 25, fontWeight: FontWeight.bold),
                       )),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
 
@@ -189,11 +184,11 @@ class HomeScreenState extends State<HomeScreen> {
                                       borderSide: BorderSide(
                                           color: Colors.grey.shade400)),
                                   hintText: "Task",
-                                  hintStyle: TextStyle(
+                                  hintStyle: const TextStyle(
                                       color: Colors.grey, fontSize: 20))),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
 
@@ -208,10 +203,10 @@ class HomeScreenState extends State<HomeScreen> {
                                     borderSide: BorderSide(
                                         color: Colors.grey.shade400)),
                                 hintText: "Task Description",
-                                hintStyle: TextStyle(
+                                hintStyle: const TextStyle(
                                     color: Colors.grey, fontSize: 20))),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
 
@@ -229,21 +224,21 @@ class HomeScreenState extends State<HomeScreen> {
                                 setState(() {});
                                 Navigator.pop(context);
                               },
-                              child: Text("Add")),
+                              child: const Text("Add")),
                           OutlinedButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: Text("Cancle")),
+                              child: const Text("Cancle")),
                         ],
                       ),
-                      SizedBox(height: 150,)
+                      const SizedBox(height: 150,)
                     ],
                   ),
                 );
               });
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
