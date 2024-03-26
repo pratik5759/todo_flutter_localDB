@@ -1,5 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:lottie/lottie.dart';
+import 'package:intl/intl.dart';
+
+import '../data_models/todo_data_model.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -10,10 +15,9 @@ class HomeScreenState extends State<HomeScreen> {
   TextEditingController taskController = TextEditingController();
   TextEditingController descController = TextEditingController();
 
-  List<Map<String, dynamic>> listTodo = [
-    {"task": "flutter app", "desc": "flutter app", "isCompleted": false},
-    {"task": "flutter task", "desc": "flutter app", "isCompleted": false}
-  ];
+  List<TodoModel> listTodo = [];
+
+  final dateFormat = DateFormat.MMMMEEEEd();
 
   @override
   Widget build(BuildContext context) {
@@ -34,35 +38,9 @@ class HomeScreenState extends State<HomeScreen> {
 
             ///list tile with container for decor
             child: InkWell(
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    //border: Border.all(color: Colors.black54),
-                    color: listTodo[index]["isCompleted"]
-                        ? Colors.green
-                        : Colors.grey.shade300,
-                    boxShadow: [const BoxShadow(color: Colors.grey, blurRadius: 5)]),
-                child: ListTile(
-                    leading: Checkbox(
-                      value: listTodo[index]["isCompleted"],
-                      onChanged: (bool? value) {
-                        listTodo[index]["isCompleted"] =
-                            !listTodo[index]["isCompleted"];
-                        setState(() {});
-                      }
-                    ),
-                    title: Text(listTodo[index]["task"],style: TextStyle(fontWeight: FontWeight.bold),),
-                    subtitle: Text(listTodo[index]["desc"],style: TextStyle(fontWeight: FontWeight.w300),),
-                    trailing: InkWell(
-                        onTap: () {
-                          listTodo.removeAt(index);
-                          setState(() {});
-                        },
-                        child: CircleAvatar(backgroundColor: Colors.white,maxRadius: 25,child: Icon(Icons.delete,color: Colors.red,)))),
-              ),
-              onTap: (){
-                taskController.text = listTodo[index]['task'];
-                descController.text = listTodo[index]['desc'];
+              onTap: !listTodo[index].isCompleted ? (){
+                taskController.text = listTodo[index].task;
+                descController.text = listTodo[index].desc;
                 showModalBottomSheet(context: context, builder: (context){
                   return Container(
                     child: Column(
@@ -124,8 +102,9 @@ class HomeScreenState extends State<HomeScreen> {
                             OutlinedButton(
                                 onPressed: () {
                                   setState(() {
-                                    listTodo[index]["task"] = taskController.text;
-                                    listTodo[index]["desc"] = descController.text;
+                                    listTodo[index].task = taskController.text;
+                                    listTodo[index].desc = descController.text;
+                                    listTodo[index].createdAt = DateTime.now().millisecondsSinceEpoch;
                                   });
                                   Navigator.pop(context);
                                 },
@@ -142,7 +121,42 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 });
-              },
+              }:(){},
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    //border: Border.all(color: Colors.black54),
+                    color: listTodo[index].isCompleted
+                        ? Colors.green
+                        : Colors.grey.shade300,
+                    boxShadow: [const BoxShadow(color: Colors.grey, blurRadius: 5)]),
+                child: ListTile(
+                    leading: SizedBox(
+                      width: 50,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Checkbox(
+                              value: listTodo[index].isCompleted,
+                              onChanged: (bool? value) {
+                                listTodo[index].isCompleted=
+                                    !listTodo[index].isCompleted;
+                                listTodo[index].completedAt = DateTime.now().millisecondsSinceEpoch;
+                                setState(() {});
+                              }
+                            ),
+                          ),
+                          //compleated at timer
+                          Expanded(flex: 1,child: listTodo[index].isCompleted ? Text(dateFormat.format(DateTime.fromMicrosecondsSinceEpoch(listTodo[index].completedAt)),overflow: TextOverflow.clip,style: TextStyle(fontSize: 8,fontWeight: FontWeight.bold),): Text(""))
+                        ],
+                      ),
+                    ),
+                    title: Text(listTodo[index].task,style: TextStyle(fontWeight: FontWeight.bold,decoration: listTodo[index].isCompleted ? TextDecoration.lineThrough : TextDecoration.none),),
+                    subtitle: Text(listTodo[index].desc,style: TextStyle(fontWeight: FontWeight.w300),),
+                    trailing: SizedBox(width:70,child: Text(dateFormat.format(DateTime.fromMicrosecondsSinceEpoch(listTodo[index].createdAt)),overflow: TextOverflow.clip,)),),
+              ),
             ),
           );
         },
@@ -216,11 +230,13 @@ class HomeScreenState extends State<HomeScreen> {
                         children: [
                           OutlinedButton(
                               onPressed: () {
-                                listTodo.add({
+                                listTodo.add(/*{
                                   "task": taskController.text,
                                   "desc": descController.text,
                                   "isCompleted": false
-                                });
+
+                                }*/
+                                TodoModel(task: taskController.text, desc: descController.text, createdAt: DateTime.now().millisecondsSinceEpoch));
                                 setState(() {});
                                 Navigator.pop(context);
                               },
