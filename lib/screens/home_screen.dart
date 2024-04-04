@@ -61,7 +61,7 @@ class HomeScreenState extends State<HomeScreen> {
 
             ///list tile with container for decor
             child: InkWell(
-              onTap: listDBdata[index][AppDatabase.TODO_COMPLETED_AT] == 0 ? (){
+              onTap: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 0 ? (){
                 taskController.text = listDBdata[index][AppDatabase.TODO_TASK];
                 descController.text = listDBdata[index][AppDatabase.TODO_TASK];
                 showModalBottomSheet(context: context, builder: (context){
@@ -124,12 +124,8 @@ class HomeScreenState extends State<HomeScreen> {
                           children: [
                             OutlinedButton(
                                 onPressed: () {
-                                  /*setState(() {
-                                    listTodo[index].task = taskController.text;
-                                    listTodo[index].desc = descController.text;
-                                    listTodo[index].createdAt = DateTime.now().millisecondsSinceEpoch;
-                                  });*/
-
+                                  db!.updateTodo(task: taskController.text, desc: descController.text, id: listDBdata[index][AppDatabase.TODO_ID]);
+                                  getTodo();
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Update")),
@@ -170,7 +166,15 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                     title: Text(listDBdata[index][AppDatabase.TODO_TASK],style: TextStyle(fontWeight: FontWeight.bold,decoration: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 1 ? TextDecoration.lineThrough : TextDecoration.none),),
                     subtitle: Text(listDBdata[index][AppDatabase.TODO_DESC],style: TextStyle(fontWeight: FontWeight.w300),),
-                    trailing: SizedBox(width:70,child: Text(dateFormat.format(DateTime.fromMillisecondsSinceEpoch(listDBdata[index][AppDatabase.TODO_CREATED_AT])),overflow: TextOverflow.clip,)),),
+                    trailing: SizedBox(width:70,child: Column(
+                      children: [
+                        Expanded(child: IconButton(onPressed: (){
+                          db!.deleteTodo(id: listDBdata[index][AppDatabase.TODO_ID]);
+                          getTodo();
+                        }, icon: Icon(Icons.delete,color: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 0 ? Colors.red:Colors.white,))),
+                        Text(dateFormat.format(DateTime.fromMillisecondsSinceEpoch(listDBdata[index][AppDatabase.TODO_CREATED_AT])),overflow: TextOverflow.clip,),
+                      ],
+                    )),),
               ),
             ),
           );

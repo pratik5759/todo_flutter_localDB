@@ -84,6 +84,21 @@ class AppDatabase {
     var db = await getDb();
     db.update(TODO_TABLE_NAME, {TODO_IS_COMPLETED: isCompleted},where: "$TODO_ID = $id");
   }
+  void updateTodo({required String task,required String desc,required id}) async{
+
+    var db = await getDb();
+    db.update(TODO_TABLE_NAME, {
+      TODO_TASK : task,
+      TODO_DESC : desc,},
+        where: "$TODO_ID = $id"
+    );
+  }
+
+  void deleteTodo({required int id}) async{
+    var db = await getDb();
+
+    db!.delete(TODO_TABLE_NAME,where: "$TODO_ID = $id");
+  }
 
 
 }
