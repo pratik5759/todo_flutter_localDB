@@ -160,10 +160,10 @@ class HomeScreenState extends State<HomeScreen> {
                       child: Checkbox(
                         value: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 1 ? true : false,
                         onChanged: (bool? value) {
-                          var currentVal = listDBdata[index][AppDatabase.TODO_IS_COMPLETED];
-                          var updatedValue = currentVal == 1 ? 0 : 1;
+                          var updatedValue = value! ? 1:0 ;
                           db!.updateIsCompleted(isCompleted: updatedValue, id: listDBdata[index][AppDatabase.TODO_ID]);
                           getTodo();
+
 
                         }
                       ),
