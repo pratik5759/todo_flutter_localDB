@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:lottie/lottie.dart';
 import 'package:intl/intl.dart';
+import 'package:todo_flutter_local/database/app_database.dart';
 
-import '../data_models/todo_data_model.dart';
+//import '../data_models/todo_data_model.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,12 +13,33 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
+
+  AppDatabase? db;
+  List<Map<String,dynamic>> listDBdata = [];
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    db = AppDatabase.db;
+    getTodo();
+
+  }
+
+   void getTodo() async{
+
+    listDBdata = await db!.fetchTodo();
+    setState(() {
+      print(listDBdata);
+    });
+   }
+
   TextEditingController taskController = TextEditingController();
   TextEditingController descController = TextEditingController();
 
-  List<TodoModel> listTodo = [];
 
-  final dateFormat = DateFormat.MMMMEEEEd();
+  final dateFormat = DateFormat('dd/MM/yyyy');
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +50,9 @@ class HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.blue,
         centerTitle: true,
       ),
-      body: listTodo.isNotEmpty ? ListView.builder(
-        itemCount: listTodo.length,
+
+      body: listDBdata.isNotEmpty ? ListView.builder(
+        itemCount: listDBdata.length,
         itemBuilder: (context, index) {
 
           ///list item content (LIST_TILE)
@@ -38,9 +61,9 @@ class HomeScreenState extends State<HomeScreen> {
 
             ///list tile with container for decor
             child: InkWell(
-              onTap: !listTodo[index].isCompleted ? (){
-                taskController.text = listTodo[index].task;
-                descController.text = listTodo[index].desc;
+              onTap: listDBdata[index][AppDatabase.TODO_COMPLETED_AT] == 0 ? (){
+                taskController.text = listDBdata[index][AppDatabase.TODO_TASK];
+                descController.text = listDBdata[index][AppDatabase.TODO_TASK];
                 showModalBottomSheet(context: context, builder: (context){
                   return Container(
                     child: Column(
@@ -95,17 +118,18 @@ class HomeScreenState extends State<HomeScreen> {
                           height: 10,
                         ),
 
-                        /// add and cancle button
+                        /// update and cancle button
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             OutlinedButton(
                                 onPressed: () {
-                                  setState(() {
+                                  /*setState(() {
                                     listTodo[index].task = taskController.text;
                                     listTodo[index].desc = descController.text;
                                     listTodo[index].createdAt = DateTime.now().millisecondsSinceEpoch;
-                                  });
+                                  });*/
+
                                   Navigator.pop(context);
                                 },
                                 child: const Text("Update")),
@@ -125,37 +149,28 @@ class HomeScreenState extends State<HomeScreen> {
               child: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    //border: Border.all(color: Colors.black54),
-                    color: listTodo[index].isCompleted
+                    color: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 1
                         ? Colors.green
                         : Colors.grey.shade300,
                     boxShadow: [const BoxShadow(color: Colors.grey, blurRadius: 5)]),
+
                 child: ListTile(
                     leading: SizedBox(
                       width: 50,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: Checkbox(
-                              value: listTodo[index].isCompleted,
-                              onChanged: (bool? value) {
-                                listTodo[index].isCompleted=
-                                    !listTodo[index].isCompleted;
-                                listTodo[index].completedAt = DateTime.now().millisecondsSinceEpoch;
-                                setState(() {});
-                              }
-                            ),
-                          ),
-                          //compleated at timer
-                          Expanded(flex: 1,child: listTodo[index].isCompleted ? Text(dateFormat.format(DateTime.fromMicrosecondsSinceEpoch(listTodo[index].completedAt)),overflow: TextOverflow.clip,style: TextStyle(fontSize: 8,fontWeight: FontWeight.bold),): Text(""))
-                        ],
+                      child: Checkbox(
+                        value: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 1 ? true : false,
+                        onChanged: (bool? value) {
+                          var currentVal = listDBdata[index][AppDatabase.TODO_IS_COMPLETED];
+                          var updatedValue = currentVal == 1 ? 0 : 1;
+                          db!.updateIsCompleted(isCompleted: updatedValue, id: listDBdata[index][AppDatabase.TODO_ID]);
+                          getTodo();
+
+                        }
                       ),
                     ),
-                    title: Text(listTodo[index].task,style: TextStyle(fontWeight: FontWeight.bold,decoration: listTodo[index].isCompleted ? TextDecoration.lineThrough : TextDecoration.none),),
-                    subtitle: Text(listTodo[index].desc,style: TextStyle(fontWeight: FontWeight.w300),),
-                    trailing: SizedBox(width:70,child: Text(dateFormat.format(DateTime.fromMicrosecondsSinceEpoch(listTodo[index].createdAt)),overflow: TextOverflow.clip,)),),
+                    title: Text(listDBdata[index][AppDatabase.TODO_TASK],style: TextStyle(fontWeight: FontWeight.bold,decoration: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 1 ? TextDecoration.lineThrough : TextDecoration.none),),
+                    subtitle: Text(listDBdata[index][AppDatabase.TODO_DESC],style: TextStyle(fontWeight: FontWeight.w300),),
+                    trailing: SizedBox(width:70,child: Text(dateFormat.format(DateTime.fromMillisecondsSinceEpoch(listDBdata[index][AppDatabase.TODO_CREATED_AT])),overflow: TextOverflow.clip,)),),
               ),
             ),
           );
@@ -230,14 +245,17 @@ class HomeScreenState extends State<HomeScreen> {
                         children: [
                           OutlinedButton(
                               onPressed: () {
-                                listTodo.add(/*{
+                                /*listTodo.add({
                                   "task": taskController.text,
                                   "desc": descController.text,
                                   "isCompleted": false
 
-                                }*/
+                                }
                                 TodoModel(task: taskController.text, desc: descController.text, createdAt: DateTime.now().millisecondsSinceEpoch));
-                                setState(() {});
+                                setState(() {});*/
+                                ///adding data to database
+                                db!.addTodo(task: taskController.text, desc: descController.text, createdAt: DateTime.now().millisecondsSinceEpoch);
+                                getTodo();
                                 Navigator.pop(context);
                               },
                               child: const Text("Add")),
