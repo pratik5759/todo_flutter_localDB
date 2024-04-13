@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_flutter_local/database/app_database.dart';
+import 'package:todo_flutter_local/provider/database_provider.dart';
 import 'package:todo_flutter_local/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {

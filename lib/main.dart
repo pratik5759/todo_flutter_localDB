@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_flutter_local/database/app_database.dart';
+import 'package:todo_flutter_local/provider/database_provider.dart';
 import 'package:todo_flutter_local/screens/splash_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(create: (BuildContext context) { return DatabaseProvider(db: AppDatabase.db);0 },
+  child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

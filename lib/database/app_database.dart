@@ -1,6 +1,7 @@
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:todo_flutter_local/data_models/todo_data_model.dart';
 
 class AppDatabase {
 
@@ -55,25 +56,26 @@ class AppDatabase {
   }
 
   /// step 6 now create addTodo function
-  void addTodo({required String task,required String desc,int isCompleted = 0,required int createdAt}) async {
+  void addTodo({required TodoModel newTodo}) async {
 
     var db = await getDb();
 
-    db.insert(TODO_TABLE_NAME, {
-      TODO_TASK : task,
-      TODO_DESC : desc,
-      TODO_IS_COMPLETED : isCompleted,
-      TODO_CREATED_AT : createdAt
-    });
+    db.insert(TODO_TABLE_NAME, newTodo.toMap());
 
   }
 
   /// step 7 now create fetchTodo function
-  Future<List<Map<String,dynamic>>> fetchTodo() async{
+  Future<List<TodoModel>>fetchTodo() async{
 
     var db = await getDb();
 
-    var mData = await db.query(TODO_TABLE_NAME);
+    List<Map<String,dynamic>> dbData = await db.query(TODO_TABLE_NAME);
+
+    List<TodoModel> mData = [];
+    for(Map<String,dynamic> eachMap in dbData){
+      var eachModel = TodoModel.fromMap(eachMap);
+      mData.add(eachModel);
+    }
 
     return mData;
   }

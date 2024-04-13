@@ -1,9 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:lottie/lottie.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_flutter_local/data_models/todo_data_model.dart';
 import 'package:todo_flutter_local/database/app_database.dart';
+
+import '../provider/database_provider.dart';
 
 //import '../data_models/todo_data_model.dart';
 
@@ -14,26 +16,28 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
 
-  AppDatabase? db;
-  List<Map<String,dynamic>> listDBdata = [];
+  //AppDatabase? db;
+  //List<TodoModel> listDBdata = [];
 
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    db = AppDatabase.db;
-    getTodo();
+    //db = AppDatabase.db;
+    //getTodo();
+
+    context.read<DatabaseProvider>().getInitialTodoProvider();
 
   }
 
-   void getTodo() async{
+   /*void getTodo() async{
 
     listDBdata = await db!.fetchTodo();
     setState(() {
       print(listDBdata);
     });
-   }
+   }*/
 
   TextEditingController taskController = TextEditingController();
   TextEditingController descController = TextEditingController();
@@ -51,135 +55,140 @@ class HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
       ),
 
-      body: listDBdata.isNotEmpty ? ListView.builder(
-        itemCount: listDBdata.length,
-        itemBuilder: (context, index) {
+      body:Consumer<DatabaseProvider>(
+        builder: (context, value, child) {
+          var listDBdata = value.fetchTodoProvider();
+          return  listDBdata.isNotEmpty ? ListView.builder(
+            itemCount: listDBdata.length,
+            itemBuilder: (context, index) {
 
-          ///list item content (LIST_TILE)
-          return Padding(
-            padding: const EdgeInsets.only(top: 10.0, left: 10, right: 10),
+              ///list item content (LIST_TILE)
+              return Padding(
+                padding: const EdgeInsets.only(top: 10.0, left: 10, right: 10),
 
-            ///list tile with container for decor
-            child: InkWell(
-              onTap: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 0 ? (){
-                taskController.text = listDBdata[index][AppDatabase.TODO_TASK];
-                descController.text = listDBdata[index][AppDatabase.TODO_TASK];
-                showModalBottomSheet(context: context, builder: (context){
-                  return Container(
-                    child: Column(
-                      children: [
-                        /// bottomsheet title
-                        const Center(
-                            child: Text(
-                              "Update Task",
-                              style: TextStyle(
-                                  fontSize: 25, fontWeight: FontWeight.bold),
-                            )),
-                        const SizedBox(
-                          height: 10,
-                        ),
-
-                        ///add task texfeild
-                        Container(
-                          height: 50,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: TextField(
-                                controller: taskController,
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                        borderSide: BorderSide(
-                                            color: Colors.grey.shade400)),
-                                    hintText: "Task",
-                                    hintStyle: const TextStyle(
-                                        color: Colors.grey, fontSize: 20))),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-
-                        /// add task desc
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextField(
-                              controller: descController,
-                              decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                      borderSide: BorderSide(
-                                          color: Colors.grey.shade400)),
-                                  hintText: "Task Description",
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey, fontSize: 20))),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-
-                        /// update and cancle button
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                ///list tile with container for decor
+                child: InkWell(
+                  onTap: listDBdata[index].isCompleted == 0 ? (){
+                    taskController.text = listDBdata[index].task;
+                    descController.text = listDBdata[index].desc;
+                    showModalBottomSheet(context: context, builder: (context){
+                      return Container(
+                        child: Column(
                           children: [
-                            OutlinedButton(
-                                onPressed: () {
-                                  db!.updateTodo(task: taskController.text, desc: descController.text, id: listDBdata[index][AppDatabase.TODO_ID]);
-                                  getTodo();
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Update")),
-                            OutlinedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Cancle")),
+                            /// bottomsheet title
+                            const Center(
+                                child: Text(
+                                  "Update Task",
+                                  style: TextStyle(
+                                      fontSize: 25, fontWeight: FontWeight.bold),
+                                )),
+                            const SizedBox(
+                              height: 10,
+                            ),
+
+                            ///add task texfeild
+                            Container(
+                              height: 50,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: TextField(
+                                    controller: taskController,
+                                    decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(15),
+                                            borderSide: BorderSide(
+                                                color: Colors.grey.shade400)),
+                                        hintText: "Task",
+                                        hintStyle: const TextStyle(
+                                            color: Colors.grey, fontSize: 20))),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+
+                            /// add task desc
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: TextField(
+                                  controller: descController,
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(15),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey.shade400)),
+                                      hintText: "Task Description",
+                                      hintStyle: const TextStyle(
+                                          color: Colors.grey, fontSize: 20))),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+
+                            /// update and cancle button
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                OutlinedButton(
+                                    onPressed: () {
+                                      /*db!.updateTodo(task: taskController.text, desc: descController.text, id: listDBdata[index].id);
+                                  getTodo();*/
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Update")),
+                                OutlinedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Cancle")),
+                              ],
+                            ),
+                            const SizedBox(height: 150,)
                           ],
                         ),
-                        const SizedBox(height: 150,)
-                      ],
-                    ),
-                  );
-                });
-              }:(){},
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 1
-                        ? Colors.green
-                        : Colors.grey.shade300,
-                    boxShadow: [const BoxShadow(color: Colors.grey, blurRadius: 5)]),
+                      );
+                    });
+                  }:(){},
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: listDBdata[index].isCompleted == 1
+                            ? Colors.green
+                            : Colors.grey.shade300,
+                        boxShadow: [const BoxShadow(color: Colors.grey, blurRadius: 5)]),
 
-                child: ListTile(
-                    leading: SizedBox(
-                      width: 50,
-                      child: Checkbox(
-                        value: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 1 ? true : false,
-                        onChanged: (bool? value) {
-                          var updatedValue = value! ? 1:0 ;
-                          db!.updateIsCompleted(isCompleted: updatedValue, id: listDBdata[index][AppDatabase.TODO_ID]);
-                          getTodo();
+                    child: ListTile(
+                      leading: SizedBox(
+                        width: 50,
+                        child: Checkbox(
+                            value: listDBdata[index].isCompleted == 1 ? true : false,
+                            onChanged: (bool? value) {
+                              var updatedValue = value! ? 1:0 ;
+                              /*db!.updateIsCompleted(isCompleted: updatedValue, id: listDBdata[index].id);
+                          getTodo();*/
 
 
-                        }
+                            }
+                        ),
                       ),
-                    ),
-                    title: Text(listDBdata[index][AppDatabase.TODO_TASK],style: TextStyle(fontWeight: FontWeight.bold,decoration: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 1 ? TextDecoration.lineThrough : TextDecoration.none),),
-                    subtitle: Text(listDBdata[index][AppDatabase.TODO_DESC],style: TextStyle(fontWeight: FontWeight.w300),),
-                    trailing: SizedBox(width:70,child: Column(
-                      children: [
-                        Expanded(child: IconButton(onPressed: (){
-                          db!.deleteTodo(id: listDBdata[index][AppDatabase.TODO_ID]);
-                          getTodo();
-                        }, icon: Icon(Icons.delete,color: listDBdata[index][AppDatabase.TODO_IS_COMPLETED] == 0 ? Colors.red:Colors.white,))),
-                        Text(dateFormat.format(DateTime.fromMillisecondsSinceEpoch(listDBdata[index][AppDatabase.TODO_CREATED_AT])),overflow: TextOverflow.clip,),
-                      ],
-                    )),),
-              ),
-            ),
-          );
+                      title: Text(listDBdata[index].task,style: TextStyle(fontWeight: FontWeight.bold,decoration: listDBdata[index].isCompleted == 1 ? TextDecoration.lineThrough : TextDecoration.none),),
+                      subtitle: Text(listDBdata[index].desc,style: TextStyle(fontWeight: FontWeight.w300),),
+                      trailing: SizedBox(width:70,child: Column(
+                        children: [
+                          Expanded(child: IconButton(onPressed: (){
+                            /*db!.deleteTodo(id: listDBdata[index].id);
+                          getTodo();*/
+                          }, icon: Icon(Icons.delete,color: listDBdata[index].isCompleted == 0 ? Colors.red:Colors.white,))),
+                          Text(dateFormat.format(DateTime.fromMillisecondsSinceEpoch(listDBdata[index].createdAt)),overflow: TextOverflow.clip,),
+                        ],
+                      )),),
+                  ),
+                ),
+              );
+            },
+          ) : Center(child: Container(child: Lottie.asset("assets/animations/no_data.json"),),);
         },
-      ) : Center(child: Container(child: Lottie.asset("assets/animations/no_data.json"),),),
+      ),
 
 
       floatingActionButton: FloatingActionButton(
@@ -258,8 +267,11 @@ class HomeScreenState extends State<HomeScreen> {
                                 TodoModel(task: taskController.text, desc: descController.text, createdAt: DateTime.now().millisecondsSinceEpoch));
                                 setState(() {});*/
                                 ///adding data to database
-                                db!.addTodo(task: taskController.text, desc: descController.text, createdAt: DateTime.now().millisecondsSinceEpoch);
-                                getTodo();
+                                /*db!.addTodo(newTodo: TodoModel(task: taskController.text, desc: descController.text, createdAt: DateTime.now().millisecondsSinceEpoch));
+                                getTodo();*/
+
+                                ///use of provider
+                                context.read<DatabaseProvider>().addTodoProvider(TodoModel(task: taskController.text, desc: descController.text, createdAt: DateTime.now().millisecondsSinceEpoch));
                                 Navigator.pop(context);
                               },
                               child: const Text("Add")),
